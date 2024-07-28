@@ -16,12 +16,30 @@ st.set_page_config(layout='wide', page_title='Dashboard de Vendas', page_icon=':
 st.title('Dashboard de Vendas :shopping_trolley:')
 
 
-url      = 'https://labdados.com/produtos'
-response = requests.get(url)
-df       = pd.DataFrame.from_dict(response.json())
+url     = 'https://labdados.com/produtos'
+regions = ['Brasil', 'Centro-Oeste', 'Nordeste', 'Sudeste', 'Sul']
 
+st.sidebar.title('Filtros')
+region = st.sidebar.selectbox('Região', regions)
+
+if region == 'Brasil':
+  region = ''
+
+all_years = st.sidebar.checkbox('Dados de todo o período', value=True)
+if all_years:
+  ano = ''
+else:
+  ano = st.sidebar.slider('Ano', 2020, 2023)
+
+query_string = {'region': region.lower(), 'ano': ano}
+response     = requests.get(url, params=query_string)
+
+df                   = pd.DataFrame.from_dict(response.json())
 df['Data da Compra'] = pd.to_datetime(df['Data da Compra'], format='%d/%m/%Y')
 
+filtro_vendedores = st.sidebar.multiselect('Vendedores', df['Vendedor'].unique())
+if filtro_vendedores:
+  df = df[df['Vendedores'].isin(filtro_vendedores)]
 
 ## Map Income per State ##
 receita_estados     = df.groupby('Local da compra')['Preço'].sum()
