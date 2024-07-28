@@ -10,6 +10,10 @@ st.title('Dados Brutos')
 def convert_csv(df):
   return df.to_csv(index=False).encode('utf-8-sig')
 
+def save_button(df):
+  df.to_csv('comma.csv')
+  df.to_excel('excel.xlsx')
+
 def success_msg():
   sucesso = st.success('download successful!', icon='✅')
   time.sleep(5)
@@ -73,6 +77,7 @@ with col1:
 with col2:
   st.download_button('Download .csv', data=convert_csv(df), file_name=file_name,
                      mime='text/csv', on_click=success_msg())
+  st.button('Download both', save_button(dados_filtrados))
 
 # st.dataframe(dados_filtrados, column_config={
 #   'Preço': st.column_config.NumberColumn(format='%.2f 🪙'),
